@@ -15,7 +15,8 @@ CREATE TABLE tb_livros(
 	Titulo VARCHAR(100),
 	Autor VARCHAR(100),
 	Ano_publicacao INT,
-	Categoria VARCHAR(30)
+	Categoria VARCHAR(30),
+	qtde_exemplares INT
 );
 
 CREATE TABLE tb_emprestimos(

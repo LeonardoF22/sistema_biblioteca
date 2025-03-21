@@ -2,24 +2,25 @@
 require 'conexao.php';
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Recebendo o RA do formulario e verificando se ele ja esta cadastrado no banco
   $ra = $_POST['ra'];
   $cadastrado = $conn -> query("SELECT * FROM tb_usuarios WHERE Ra = $ra") -> fetch_assoc();
   if($cadastrado != null) {
-    echo "<script>alert('Usuário já cadastrado!');</script>";
-    
-  } else {
-    
+    echo "<script>alert('Usuário já cadastrado!');</script>"; 
+  } else { 
+    // Recebendo os outros dados do formulario
     $nome = $_POST['nome'];
     $data_ingresso = $_POST['ingresso'];
     $curso = $_POST['curso'];
     $telefone = $_POST['telefone'];
-
+    // Enviando para o banco
     $stmt = $conn->prepare("INSERT INTO tb_usuarios (Ra, Nome, Data_ingresso, curso, Telefone) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("sssss", $ra, $nome, $data_ingresso, $curso, $telefone);
     $stmt->execute();
-    echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
-    
+    echo "<script>alert('Usuário cadastrado com sucesso!');</script>";  
   }
+  header('Location: cadastrar_usuario.php');
+  exit;
 }
 
 ?>

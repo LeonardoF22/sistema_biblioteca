@@ -2,7 +2,27 @@
 require 'conexao.php';
 date_default_timezone_set('America/Sao_Paulo');
 $alunos = $conn -> query("SELECT Id_usuario, Nome FROM tb_usuarios") -> fetch_all(MYSQLI_ASSOC);
-$livros = $conn -> query("SELECT Id_livro, Titulo FROM tb_livros") -> fetch_all(MYSQLI_ASSOC);
+$livros = $conn -> query("SELECT Id_livro, Titulo FROM tb_livros WHERE qtde_exemplares > 0") -> fetch_all(MYSQLI_ASSOC);
+
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Recebendo os dados do formulario
+    $id_aluno = $_POST['aluno'];
+    $id_livro = $_POST['livro'];
+    $data_emprestimo = $_POST['data_emprestimo'];
+    $data_devolucao = $_POST['data_devolucao'];
+    // Enviando os dados para o banco
+    $stmt = $conn->prepare("INSERT INTO tb_emprestimos(Data_emprestimo, Data_devolucao, Id_usuario, Id_livro) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $data_emprestimo, $data_devolucao, $id_aluno, $id_livro);
+    $stmt->execute();
+    $stmt->close();
+
+    // Alterando a quantidade de exemplares
+    $consulta = $conn->query("SELECT qtde_exemplares FROM tb_livros WHERE Id_livro = $id_livro")->fetch_assoc();
+    $qtde_exemplares = $consulta["qtde_exemplares"] - 1;
+    $stmt = $conn->prepare("UPDATE tb_livros SET qtde_exemplares = ? WHERE Id_livro = ?");
+    $stmt->bind_param("ii", $qtde_exemplares, $id_livro);
+    $stmt->execute();
+  }
 
 ?>
 
@@ -56,8 +76,8 @@ $livros = $conn -> query("SELECT Id_livro, Titulo FROM tb_livros") -> fetch_all(
             <!-- inicío da primeira linha -->
             <div class="form-row">
               <div class="form-group col-6">                    
-                  <label for="nome_aluno">Nome do aluno:</label>
-                  <select name="nome_aluno" id="nome_aluno" class="form-control">
+                  <label for="aluno">Nome do aluno:</label>
+                  <select name="aluno" id="aluno" class="form-control" required>
                     <option disabled selected>Selecione...</option>
                     <?php foreach($alunos as $aluno): ?>
                       <option value="<?= $aluno['Id_usuario'] ?>"><?= $aluno['Nome'] ?></option>
@@ -65,8 +85,8 @@ $livros = $conn -> query("SELECT Id_livro, Titulo FROM tb_livros") -> fetch_all(
                   </select>
               </div>
               <div class="form-group col-6">                    
-                <label for="titulo">Título do livro:</label>
-                <select name="titulo" id="titulo" class="form-control">
+                <label for="livro">Título do livro:</label>
+                <select name="livro" id="livro" class="form-control" required>
                   <option disabled selected>Selecione...</option>
                   <?php foreach($livros as $livro): ?>
                     <option value="<?= $livro['Id_livro'] ?>"><?= $livro['Titulo'] ?></option>
@@ -80,11 +100,11 @@ $livros = $conn -> query("SELECT Id_livro, Titulo FROM tb_livros") -> fetch_all(
             <div class="form-row">
               <div class="form-group col-6">                    
                   <label for="data_emprestimo">Data de empréstimo:</label>
-                  <input type="date" class="form-control" id="data_emprestimo" name="data_emprestimo" value="<?= date("Y-m-d") ?>" required>
+                  <input type="date" class="form-control" id="data_emprestimo" name="data_emprestimo" value="<?= date("Y-m-d") ?>" readonly>
               </div>
               <div class="form-group col-6">                    
                 <label for="telefone">Data de devolução:</label>
-                <input type="date" class="form-control" id="data_devolução" name="data_devolucao">
+                <input type="date" class="form-control" id="data_devolucao" name="data_devolucao" min="<?= date("Y-m-d") ?>" required>
               </div>                
             </div>
           <!-- fim da segunda linha --> 

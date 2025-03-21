@@ -2,18 +2,24 @@
 require 'conexao.php';
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Recebendo o numero de serie do formulario e verificando se ele ja esta cadastrado no banco
   $numero = $_POST['numero'];
   $cadastrado = $conn -> query("SELECT * FROM tb_livros WHERE Numero = $numero") -> fetch_assoc();
   if($cadastrado != null) {
     echo "<script>alert('Livro já cadastrado!');</script>";
   } else {
+    // Recebendo os outros dados do formulario
     $titulo = $_POST['titulo'];
     $ano = $_POST['ano'];
     $autor = $_POST['autor'];
     $categoria = $_POST['categoria'];
-    $stmt = $conn->prepare("INSERT INTO tb_livros (Numero, Titulo, Ano_publicacao, Autor, Categoria) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $numero, $titulo, $ano, $autor, $categoria);
+    $qtde_exemplares = $_POST['exemplares'];
+    // Enviando para o banco
+    $stmt = $conn->prepare("INSERT INTO tb_livros (Numero, Titulo, Ano_publicacao, Autor, Categoria, qtde_exemplares) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssss", $numero, $titulo, $ano, $autor, $categoria, $qtde_exemplares);
     $stmt->execute();
+    header('Location: cadastro_livros.php');
+    exit;
   }
 }
 ?>
@@ -73,25 +79,29 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
               </div>
               <div class="form-group col-6">                    
                 <label for="titulo">Título:</label>
-                <input type="text" class="form-control" id="titulo" name="titulo" placeholder="Título">
+                <input type="text" class="form-control" id="titulo" name="titulo" placeholder="Título" required>
               </div>
               <div class="form-group col-4">                    
                 <label for="ano">Ano de Publicação:</label>
-                <input type="number" class="form-control" id="ano" name="ano">
+                <input type="number" class="form-control" id="ano" name="ano" required>
               </div>                  
             </div>
             <!-- fim da primeira linha -->
 
             <!-- inicío da segunda linha -->
             <div class="form-row">
-              <div class="form-group col-6">                    
+              <div class="form-group col-5">                    
                   <label for="autor">Autor:</label>
                   <input type="text" class="form-control" id="autor" name="autor" placeholder="Autor" required>
               </div>
-              <div class="form-group col-6">                    
+              <div class="form-group col-5">                    
                 <label for="categoria">Categoria:</label>
-                <input type="text" class="form-control" id="categoria" name="categoria" placeholder="Categoria">
-              </div>                
+                <input type="text" class="form-control" id="categoria" name="categoria" placeholder="Categoria" required>
+              </div> 
+              <div class="form-group col-2">
+                <label for="exemplares">Qtde Exemplares:</label>
+                <input type="number" class="form-control" name="exemplares" id="exemplares" required>
+              </div>               
             </div>
           <!-- fim da segunda linha --> 
           </fieldset>
