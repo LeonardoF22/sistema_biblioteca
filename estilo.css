@@ -1,0 +1,26 @@
+#botao1{
+    background-color: beige ;
+    ;
+}
+#botao2{
+    background-color: beige ;
+}
+body{
+    background-image: url('fundo.jpg');
+    background-repeat: no-repeat;
+    background-size:100% 100%;
+    bottom: 0;
+    color: black;
+    left: 0;
+    overflow: auto;
+    padding: 3em;
+    position: absolute;
+    right: 0;   
+    text-align: center;
+    top: 0;
+    background-size: cover;
+}
+#container{
+    width: 300px;
+    height: 300px;
+}
